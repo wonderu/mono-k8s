@@ -1,0 +1,51 @@
+# Define the API version and resource type
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Name of the deployment with a dynamic suffix from Helm values
+  name: reader-{{ .Values.global.werf.name }}
+  labels:
+    # Label to identify this deployment
+    app: reader-{{ .Values.global.werf.name }}
+spec:
+  # Number of pod replicas to maintain
+  replicas: 1
+  selector:
+    # Label selector for pods managed by this deployment
+    matchLabels:
+      app: reader-{{ .Values.global.werf.name }}
+  template:
+    metadata:
+      # Labels applied to pods created by this template
+      labels:
+        app: reader-{{ .Values.global.werf.name }}
+    spec:
+      # Secret for pulling images from private registry
+      imagePullSecrets: 
+      - name: registrysecret
+      containers:
+      - # Container name using Helm template variable
+        name: {{ .Values.global.werf.name }}-reader
+        # Container image reference from Helm values
+        image: {{ .Values.werf.image.reader }}
+        # Image pull policy - only pull if not present locally
+        imagePullPolicy: IfNotPresent
+        # Environment variables loaded from ConfigMap
+        envFrom:
+          - configMapRef:
+              name: reader-{{ .Values.global.werf.name }}-{{ .Values.werf.env }}-config
+        # Resource allocation and limits
+        resources:
+          # Minimum resources requested for the container
+          requests:
+            memory: 30Mi
+            cpu: "0.01"
+          # Maximum resources the container can use
+          limits:
+            memory: 50Mi
+            cpu: "0.05"
+        # Network ports exposed by the container
+        ports:
+        - name: http
+          containerPort: 8000
+  

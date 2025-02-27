@@ -1,0 +1,18 @@
+# Define the API version for this Kubernetes resource
+apiVersion: v1
+# Specify the resource type as ConfigMap
+kind: ConfigMap
+metadata:
+  # Set the name of the ConfigMap using the application name and environment
+  # The name will be in the format: reader-[app-name]-[environment]-config
+  name: reader-{{ .Values.global.werf.name }}-{{ .Values.werf.env }}-config
+  annotations: 
+   # Helm hooks to ensure this ConfigMap is created/updated before installation or upgrade
+   "helm.sh/hook": pre-install, pre-upgrade
+   # Hook weight ensures proper ordering of hook execution (-1 means run early)
+   "helm.sh/hook-weight": "-1"
+# The actual configuration data for the reader service
+# This pulls environment-specific variables from .Values.global.envs.[current-env].reader_vars
+# The toYaml function converts the data to YAML format
+# nindent 2 properly indents the resulting YAML with 2 spaces
+data: {{ (get (get .Values.global.envs (.Values.werf.env)) "reader_vars") | toYaml | nindent 2 }}

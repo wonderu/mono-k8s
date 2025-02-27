@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-{{ .Values.werf.env }}
+  labels:
+    app: redis-{{ .Values.global.werf.name }}
+    environment: {{ .Values.werf.env }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    app: redis-{{ .Values.global.werf.name }}
+    environment: {{ .Values.werf.env }} 

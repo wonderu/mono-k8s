@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-{{ .Values.global.werf.name }}-{{ .Values.werf.env }}-pvc
+  labels:
+    app: redis-{{ .Values.global.werf.name }}
+    environment: {{ .Values.werf.env }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.redis.master.persistence.size }} 

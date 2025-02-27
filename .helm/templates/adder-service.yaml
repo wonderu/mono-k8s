@@ -1,0 +1,18 @@
+# Kubernetes API version being used
+apiVersion: v1
+# Type of Kubernetes resource being defined
+kind: Service
+metadata:
+  # Name of the service with environment suffix from Helm values
+  name: adder-service-{{ .Values.werf.env }}
+spec:
+  # Service type that makes the service only accessible within the cluster
+  type: ClusterIP
+  ports:
+    - port: 80      # Port exposed by the service
+      name: http    # Name of the port (for reference)
+      targetPort: 8000  # Port on the container that the service forwards to
+  selector:
+    # Label selector to determine which pods the service routes traffic to
+    # Uses the application name from global werf values
+    app: adder-{{ .Values.global.werf.name }}

@@ -1,0 +1,12 @@
+project: mono-k8s
+configVersion: 1
+
+---
+image: adder
+context: add_service
+dockerfile: Dockerfile
+
+---
+image: reader
+context: read_service
+dockerfile: Dockerfile 

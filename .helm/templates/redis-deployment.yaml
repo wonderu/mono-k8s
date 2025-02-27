@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-{{ .Values.global.werf.name }}-{{ .Values.werf.env }}
+  labels:
+    app: redis-{{ .Values.global.werf.name }}
+    environment: {{ .Values.werf.env }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-{{ .Values.global.werf.name }}
+      environment: {{ .Values.werf.env }}
+  template:
+    metadata:
+      labels:
+        app: redis-{{ .Values.global.werf.name }}
+        environment: {{ .Values.werf.env }}
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6379
+          name: redis
+        resources:
+          # Minimum resources requested for the container
+          requests:
+            memory: 50Mi
+            cpu: "0.01"
+          # Maximum resources the container can use
+          limits:
+            memory: 100Mi
+            cpu: "0.05"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-{{ .Values.global.werf.name }}-{{ .Values.werf.env }}-pvc 

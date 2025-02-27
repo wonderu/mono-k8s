@@ -1,0 +1,45 @@
+# Kubernetes API version for Ingress resources
+apiVersion: networking.k8s.io/v1
+# Resource type
+kind: Ingress
+metadata:
+  annotations:
+    # Specifies which cluster issuer to use for TLS certificates
+    cert-manager.io/cluster-issuer: lets-encrypt
+    # Defines which ingress controller class should implement this Ingress
+    kubernetes.io/ingress.class: public
+    # Enables automatic TLS certificate management
+    kubernetes.io/tls-acme: "true"
+    # Increases the maximum allowed request body size to 30 megabytes
+    nginx.ingress.kubernetes.io/proxy-body-size: 30m
+    # Instructs nginx to use X-Forwarded-* headers
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    #nginx.ingress.kubernetes.io/server-snippet: |
+    #  gzip on;
+    #  gzip_types text/plain text/css application/javascript application/x-javascript text/javascript;
+  # Name of the Ingress resource with environment suffix
+  name: reader-ingress-{{ .Values.werf.env }}
+spec:
+  rules:
+  # Host configuration - dynamically set based on environment
+  - host: reader-{{ .Values.werf.env }}.mono-k8s.wonderu.com
+    http: #&http_rules
+      paths:
+      # Route all traffic at the root path to the service
+      - path: /
+        # Match any subpath under the specified path
+        pathType: Prefix
+        backend:
+          service:
+            # Target service name with environment suffix
+            name: reader-service-{{ .Values.werf.env }}
+            port:
+              number: 80
+  # TLS configuration
+  tls:
+   - hosts:
+     # Domain for which the TLS certificate will be issued
+     -  reader-{{ .Values.werf.env }}.mono-k8s.wonderu.com
+     # Name of the Kubernetes secret that will store the TLS certificate
+     secretName: reader-{{ .Values.global.werf.name }}-tls-{{ .Values.werf.env }}
+

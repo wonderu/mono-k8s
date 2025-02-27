@@ -1,0 +1,12 @@
+global:
+  envs:
+    dev:
+      adder_vars:
+        REDIS_HOST: "redis.svc.cluster.local"
+        REDIS_PORT: "6379"
+        REDIS_DB: "0"
+      reader_vars:
+        REDIS_HOST: "redis.svc.cluster.local"
+        REDIS_PORT: "6379"
+        REDIS_DB: "0"
+     
